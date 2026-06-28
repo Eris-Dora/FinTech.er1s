@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FIN TEX AI — Premium FinTech Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIN TEX AI - Chat Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -16,9 +16,6 @@
                         goldPremium: '#D4AF37',
                         platinum: '#E5E4E2',
                         glassBorder: 'rgba(255, 255, 255, 0.08)'
-                    },
-                    fontFamily: {
-                        sans: ['SF Pro Display', 'Inter', 'sans-serif'],
                     }
                 }
             }
@@ -30,178 +27,267 @@
             backdrop-filter: blur(20px);
             border: 1px solid var(--tw-colors-glassBorder);
         }
-        .tap-active:active { transform: scale(0.97); transition: transform 0.1s ease-out; }
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-        @keyframes pulse-slow { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.4; } }
-        .animate-pulse-slow { animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        .ai-float-chat-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 20px;
-            z-index: 50;
+        .message-user {
+            animation: slideInRight 0.3s ease-out;
         }
-        .chat-modal {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            width: 360px;
-            height: 500px;
-            z-index: 51;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 230, 118, 0.2);
+        .message-ai {
+            animation: slideInLeft 0.3s ease-out;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00E676;
+            animation: typing 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
         }
     </style>
 </head>
-<body class="bg-obsidian text-white font-sans antialiased selection:bg-emeraldNeon/30 select-none overflow-x-hidden">
+<body class="bg-obsidian text-white font-sans antialiased overflow-x-hidden">
 
-    <!-- Telegram Mini App Container -->
-    <div class="max-w-md mx-auto min-h-screen px-4 pt-3 pb-8 flex flex-col justify-between">
+    <div class="max-w-2xl mx-auto h-screen px-4 flex flex-col">
         
-        <!-- HEADER -->
-        <header class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-goldPremium to-platinum p-[1px] tap-active">
-                    <div class="w-full h-full rounded-full bg-slateDark flex items-center justify-center overflow-hidden">
-                        <span class="text-xs font-bold tracking-wider text-platinum">AA</span>
-                    </div>
+        <!-- Header -->
+        <header class="flex items-center justify-between py-4 border-b border-white/10">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-goldPremium to-emeraldNeon flex items-center justify-center">
+                    <span class="text-xs font-bold">AI</span>
                 </div>
                 <div>
-                    <h1 class="text-xs font-medium text-gray-400 tracking-wide uppercase">FIN TEX AI</h1>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emeraldNeon animate-pulse"></span>
-                        <span class="text-[10px] text-emeraldNeon/90 tracking-widest uppercase font-semibold">AI Engine Active</span>
-                    </div>
+                    <h1 class="text-sm font-bold">FIN TEX AI</h1>
+                    <p class="text-xs text-emeraldNeon">Online</p>
                 </div>
             </div>
-            
-            <button class="w-10 h-10 rounded-full glass-card flex items-center justify-center border border-white/5 tap-active relative">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-300">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-                </svg>
-                <span class="absolute top-3 right-3 w-1.5 h-1.5 bg-emeraldNeon rounded-full"></span>
+            <button onclick="closeChat()" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center">
+                ✕
             </button>
         </header>
 
-        <!-- MAIN WALLET CARD -->
-        <section class="glass-card rounded-3xl p-6 mb-5 relative overflow-hidden shadow-2xl border border-white/10">
-            <div class="absolute -right-10 -top-10 w-32 h-32 bg-emeraldNeon/10 rounded-full blur-3xl pointer-events-none"></div>
-            
-            <div class="flex justify-between items-start mb-4">
-                <span class="text-xs font-medium text-gray-400 uppercase tracking-widest">Текущий Баланс</span>
-                <span class="text-[10px] bg-white/5 px-2 py-1 rounded-full text-gray-300 border border-white/5">Som (KGS)</span>
-            </div>
-            
-            <div class="flex items-baseline gap-1 mb-6">
-                <span class="text-3xl font-bold tracking-tight text-white">25 000</span>
-                <span class="text-lg font-medium text-emeraldNeon">KGS</span>
-            </div>
-
-            <div class="mt-2">
-                <p class="text-[10px] text-gray-500 mb-2 uppercase tracking-wider">Поток средств за неделю</p>
-                <div class="h-12 flex items-end gap-2 pt-2 relative">
-                    <div class="w-full h-[60%] bg-white/5 rounded-t-sm relative overflow-hidden">
-                        <div class="absolute bottom-0 left-0 right-0 h-full bg-gradient-to-t from-emeraldNeon/20 to-transparent"></div>
-                    </div>
-                    <div class="w-full h-[40%] bg-white/5 rounded-t-sm relative overflow-hidden">
-                        <div class="absolute bottom-0 left-0 right-0 h-full bg-gradient-to-t from-emeraldNeon/20 to-transparent"></div>
-                    </div>
-                    <div class="w-full h-[85%] bg-white/5 rounded-t-sm relative overflow-hidden">
-                        <div class="absolute bottom-0 left-0 right-0 h-full bg-gradient-to-t from-emeraldNeon/30 to-transparent"></div>
-                    </div>
-                    <div class="w-full h-[55%] bg-white/5 rounded-t-sm relative overflow-hidden">
-                        <div class="absolute bottom-0 left-0 right-0 h-full bg-gradient-to-t from-emeraldNeon/20 to-transparent"></div>
-                    </div>
-                    <div class="w-full h-[95%] bg-white/5 rounded-t-sm relative overflow-hidden">
-                        <div class="absolute bottom-0 left-0 right-0 h-full bg-gradient-to-t from-emeraldNeon/40 to-transparent"></div>
-                    </div>
+        <!-- Chat Messages -->
+        <div id="chatMessages" class="flex-1 overflow-y-auto py-4 space-y-4 pr-2">
+            <div class="message-ai">
+                <div class="glass-card rounded-2xl p-4 w-fit max-w-xs">
+                    <p class="text-sm text-gray-200">Привет! 👋 Я FIN TEX AI. Я помогу вам разобраться с вашими финансами, проанализирую расходы и дам рекомендации. Что вам интересно?</p>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- AI FINANCIAL KARMA -->
-        <section class="glass-card rounded-3xl p-5 mb-5 border border-white/5 relative">
-            <div class="flex justify-between items-center mb-3">
-                <div class="flex items-center gap-1.5">
-                    <span class="text-xs font-medium text-gray-400 uppercase tracking-widest">Финансовая Карма AI</span>
-                    <span class="text-[9px] text-goldPremium bg-goldPremium/10 px-1.5 py-0.5 rounded border border-goldPremium/20 font-mono">КИБ Ишеним</span>
-                </div>
-                <span class="text-xs font-bold text-goldPremium tracking-wide">720 <span class="text-[10px] text-gray-400 font-normal">/ 850</span></span>
+        <!-- Input Area -->
+        <div class="py-4 border-t border-white/10">
+            <form id="chatForm" onsubmit="sendMessage(event)" class="flex gap-3">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="Напишите сообщение..." 
+                    class="flex-1 glass-card rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emeraldNeon/50 transition"
+                    maxlength="5000"
+                >
+                <button 
+                    type="submit" 
+                    class="w-10 h-10 rounded-full glass-card flex items-center justify-center hover:bg-emeraldNeon/20 transition tap-active"
+                >
+                    <span class="text-lg">→</span>
+                </button>
+            </form>
+            <div class="flex gap-2 mt-3 flex-wrap">
+                <button onclick="quickPrompt('Проанализируй мои расходы')" class="text-xs glass-card px-3 py-2 rounded-full hover:bg-white/10 transition">
+                    📊 Анализ расходов
+                </button>
+                <button onclick="quickPrompt('Дай мне финансовый совет')" class="text-xs glass-card px-3 py-2 rounded-full hover:bg-white/10 transition">
+                    💡 Совет
+                </button>
+                <button onclick="openFileUpload()" class="text-xs glass-card px-3 py-2 rounded-full hover:bg-white/10 transition">
+                    📄 Загрузить выписку
+                </button>
             </div>
-
-            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mb-2.5">
-                <div class="h-full bg-gradient-to-r from-goldPremium via-platinum to-emeraldNeon rounded-full" style="width: 82%"></div>
-            </div>
-
-            <div class="flex justify-between items-center">
-                <p class="text-[11px] text-gray-400">Статус: <span class="text-emeraldNeon font-medium">Отличный рейтинг</span></p>
-                <p class="text-[10px] text-gray-500 italic">Тренды указывают на рост на +15 пунктов</p>
-            </div>
-        </section>
-
-        <!-- QUICK ACTIONS -->
-        <section class="grid grid-cols-2 gap-3 mb-6">
-            <button onclick="openAIChat()" class="glass-card rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 border border-white/5 tap-active text-sm font-medium text-gray-200 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-emeraldNeon">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                AI Чат
-            </button>
-            <button class="glass-card rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 border border-white/5 tap-active text-sm font-medium text-gray-200 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-goldPremium">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
-                </svg>
-                AI Аналитика
-            </button>
-        </section>
-
-        <!-- RECENT ACTIVITIES -->
-        <section class="flex-1 flex flex-col min-h-0">
-            <h3 class="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Последние операции</h3>
-            
-            <div class="space-y-2.5 overflow-y-auto pr-1 flex-1">
-                <div class="glass-card rounded-2xl overflow-hidden transition-all duration-3xl border border-white/5">
-                    <div class="p-4 flex items-center justify-between tap-active">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 text-base">🛍️</div>
-                            <div>
-                                <h4 class="text-xs font-medium text-white">Гипермаркет Глобус</h4>
-                                <p class="text-[10px] text-gray-500">Сегодня, 14:32</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs font-semibold text-gray-300">-2 450 KGS</span>
-                            <p class="text-[9px] text-emeraldNeon font-mono">Продукты</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        </div>
     </div>
 
-    <!-- Floating AI Chat Button -->
-    <button onclick="openAIChat()" class="ai-float-chat-btn w-14 h-14 rounded-full glass-card flex items-center justify-center border border-emeraldNeon/50 shadow-lg hover:shadow-emeraldNeon/50 transition tap-active group">
-        <div class="absolute inset-0 rounded-full bg-emeraldNeon/10 group-hover:bg-emeraldNeon/20 transition"></div>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-emeraldNeon relative z-10">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0M9 12.75h.008v.008H9v-.008zm5.625 0h.008v.008h-.008v-.008zm5.625 0h.008v.008h-.008v-.008M9.75 15h.008v.008H9.75v-.008zm5.625 0h.008v.008h-.008v-.008zm5.625 0h.008v.008h-.008v-.008M7.5 15.75h.008v.008H7.5v-.008zm7.5 0h.008v.008h-.008v-.008zm7.5 0h.008v.008h-.008v-.008" />
-        </svg>
-    </button>
-
-    <!-- Chat Modal -->
-    <iframe id="chatModal" class="chat-modal glass-card hidden" style="border: 1px solid var(--tw-colors-glassBorder);"></iframe>
+    <!-- Hidden File Input -->
+    <input type="file" id="fileInput" hidden accept=".pdf,.xlsx,.xls" onchange="uploadDocument()">
 
     <script>
-        function openAIChat() {
-            const modal = document.getElementById('chatModal');
-            modal.classList.remove('hidden');
-            modal.src = 'ai-chat.html';
+        const API_BASE = 'http://localhost:3000/api';
+        let authToken = localStorage.getItem('authToken');
+        let conversationHistory = [];
+
+        // Initialize chat
+        async function initializeChat() {
+            if (!authToken) {
+                // Get token for development (in production, use Telegram Mini App auth)
+                const response = await fetch(`${API_BASE}/auth/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: 'user_' + Date.now() })
+                });
+                const data = await response.json();
+                authToken = data.token;
+                localStorage.setItem('authToken', authToken);
+            }
+        }
+
+        async function sendMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Add user message to chat
+            addMessageToChat(message, 'user');
+            input.value = '';
+            conversationHistory.push({ role: 'user', content: message });
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            try {
+                const response = await fetch(`${API_BASE}/ai/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        message,
+                        history: conversationHistory.slice(-5) // Keep last 5 messages for context
+                    })
+                });
+
+                if (!response.ok) throw new Error('API Error');
+                const data = await response.json();
+
+                // Remove typing indicator
+                removeTypingIndicator();
+
+                // Add AI response
+                addMessageToChat(data.response, 'ai');
+                conversationHistory.push({ role: 'assistant', content: data.response });
+            } catch (error) {
+                removeTypingIndicator();
+                addMessageToChat('❌ Ошибка подключения к серверу', 'ai');
+            }
+        }
+
+        function addMessageToChat(text, role) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-${role === 'user' ? 'user flex justify-end' : 'ai'}`;
+            
+            const bgColor = role === 'user' ? 'bg-emeraldNeon/20' : 'glass-card';
+            const messageContent = document.createElement('div');
+            messageContent.className = `${bgColor} rounded-2xl p-4 w-fit max-w-xs`;
+            messageContent.innerHTML = `<p class="text-sm text-gray-200 whitespace-pre-wrap">${escapeHtml(text)}</p>`;
+            
+            messageDiv.appendChild(messageContent);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typeDiv = document.createElement('div');
+            typeDiv.id = 'typingIndicator';
+            typeDiv.className = 'message-ai';
+            typeDiv.innerHTML = `
+                <div class="glass-card rounded-2xl p-4">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(typeDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+
+        function quickPrompt(prompt) {
+            document.getElementById('messageInput').value = prompt;
+            sendMessage({ preventDefault: () => {} });
+        }
+
+        function openFileUpload() {
+            document.getElementById('fileInput').click();
+        }
+
+        async function uploadDocument() {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) return;
+
+            showTypingIndicator();
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${API_BASE}/documents/process-statement`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                removeTypingIndicator();
+
+                if (data.success) {
+                    const analysis = data.data.analysis || JSON.stringify(data.data);
+                    addMessageToChat(`📄 Документ обработан:\n\n${analysis}`, 'ai');
+                    conversationHistory.push({ role: 'assistant', content: analysis });
+                } else {
+                    addMessageToChat('❌ Ошибка обработки документа', 'ai');
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessageToChat('❌ Ошибка загрузки документа', 'ai');
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
         }
 
         function closeChat() {
-            const modal = document.getElementById('chatModal');
-            modal.classList.add('hidden');
+            window.close();
         }
+
+        // Initialize on page load
+        window.addEventListener('load', initializeChat);
     </script>
+
 </body>
 </html>
